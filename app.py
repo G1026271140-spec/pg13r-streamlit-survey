@@ -15,7 +15,10 @@ TRANSLATOR = "译：刘新宪，周宁宁"
 DATA_DIR = Path(os.environ.get("PG13R_DATA_DIR", "data"))
 RESPONSES_FILE = DATA_DIR / "pg13r_responses.csv"
 
-YES_NO_OPTIONS = ["是", "否"]
+YES = "是"
+NO = "否"
+YES_NO_OPTIONS = [YES, NO]
+
 SCALE_LABELS = {
     1: "不符合 1",
     2: "稍微符合 2",
@@ -25,46 +28,22 @@ SCALE_LABELS = {
 }
 
 SCORE_QUESTIONS = [
-    {
-        "id": "Q3",
-        "text": "您感到自己怀念并渴望见到逝者吗？",
-    },
-    {
-        "id": "Q4",
-        "text": "您因为过于想念逝者而在做日常事务时有困难吗？",
-    },
+    {"id": "Q3", "text": "您感到自己怀念并渴望见到逝者吗？"},
+    {"id": "Q4", "text": "您因为过于想念逝者而在做日常事务时有困难吗？"},
     {
         "id": "Q5",
         "text": "您对自己的在生活中的角色感到困惑，或者感到不知道自己是谁（即感到失去了自己的一部分）吗？",
     },
-    {
-        "id": "Q6",
-        "text": "您难以相信逝者真的去世了吗？",
-    },
-    {
-        "id": "Q7",
-        "text": "您回避提示逝者离世的线索吗？",
-    },
-    {
-        "id": "Q8",
-        "text": "您感到与逝者离世有关的情绪痛苦（例如愤怒、苦楚、悲伤）吗？",
-    },
+    {"id": "Q6", "text": "您难以相信逝者真的去世了吗？"},
+    {"id": "Q7", "text": "您回避提示逝者离世的线索吗？"},
+    {"id": "Q8", "text": "您感到与逝者离世有关的情绪痛苦（例如愤怒、苦楚、悲伤）吗？"},
     {
         "id": "Q9",
         "text": "您觉得难以让生活继续前进（例如，难以与朋友交往、培养兴趣、规划未来）吗？",
     },
-    {
-        "id": "Q10",
-        "text": "您感到情感麻木或与他人疏远了吗？",
-    },
-    {
-        "id": "Q11",
-        "text": "您觉得没有逝者，生活就毫无意义吗？",
-    },
-    {
-        "id": "Q12",
-        "text": "没有逝者，您感到孤单或孤独吗？",
-    },
+    {"id": "Q10", "text": "您感到情感麻木或与他人疏远了吗？"},
+    {"id": "Q11", "text": "您觉得没有逝者，生活就毫无意义吗？"},
+    {"id": "Q12", "text": "没有逝者，您感到孤单或孤独吗？"},
 ]
 
 
@@ -73,22 +52,84 @@ def setup_page() -> None:
     st.markdown(
         """
         <style>
-        .block-container {
-            max-width: 1120px;
-            padding-top: 2.2rem;
-            padding-bottom: 3rem;
+        :root {
+            --warm-bg: #fff7ee;
+            --warm-panel: #fffdf9;
+            --warm-panel-strong: #fff1e1;
+            --warm-line: #ecd2bd;
+            --warm-text: #402a1f;
+            --warm-muted: #7d6253;
+            --warm-accent: #c46a3a;
+            --warm-accent-dark: #9f4f2b;
+            --warm-rose: #d88478;
+            --warm-sage: #7d9a7b;
         }
-        .intro-note {
-            border-left: 4px solid #2c9f7a;
-            background: #eef8f4;
+        .stApp {
+            background:
+                radial-gradient(circle at top left, rgba(249, 204, 166, 0.42), transparent 34rem),
+                linear-gradient(135deg, #fff8f1 0%, #fff2e7 45%, #fffaf4 100%);
+            color: var(--warm-text);
+        }
+        .block-container {
+            max-width: 1080px;
+            padding-top: 2rem;
+            padding-bottom: 3.5rem;
+        }
+        [data-testid="stSidebar"] {
+            background: #fff0e3;
+            border-right: 1px solid var(--warm-line);
+        }
+        [data-testid="stForm"] {
+            background: rgba(255, 253, 249, 0.94);
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            box-shadow: 0 18px 48px rgba(137, 85, 49, 0.11);
+            padding: 1.2rem 1.25rem 1.35rem;
+        }
+        h1, h2, h3, h4 {
+            color: var(--warm-text);
+            letter-spacing: 0;
+        }
+        .hero-panel {
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255, 253, 249, 0.96), rgba(255, 239, 224, 0.94));
+            box-shadow: 0 18px 54px rgba(137, 85, 49, 0.12);
+            padding: 1.45rem 1.5rem;
+            margin: 0.4rem 0 1.4rem;
+        }
+        .eyebrow {
+            color: var(--warm-accent-dark);
+            font-size: 0.84rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+        .hero-title {
+            font-size: clamp(1.95rem, 4vw, 3.2rem);
+            line-height: 1.12;
+            font-weight: 800;
+            margin: 0;
+        }
+        .hero-copy {
+            color: var(--warm-muted);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin: 0.95rem 0 0;
+        }
+        .soft-note {
+            border: 1px solid #f0d4bf;
+            border-left: 4px solid var(--warm-rose);
+            background: #fff8ef;
+            border-radius: 8px;
             padding: 0.9rem 1rem;
-            color: #18362e;
+            color: #5e4234;
             margin: 1rem 0 1.2rem;
         }
         .scale-grid {
             display: grid;
             grid-template-columns: repeat(5, minmax(110px, 1fr));
-            border: 1px solid #b7c9c0;
+            border: 1px solid #dfc2ac;
+            border-radius: 8px;
             margin: 0.8rem 0 1.1rem;
             overflow: hidden;
         }
@@ -98,38 +139,108 @@ def setup_page() -> None:
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-weight: 700;
-            color: #10231e;
-            border-right: 1px solid #9db8ad;
+            font-weight: 750;
+            color: #3d281f;
+            border-right: 1px solid #dfc2ac;
         }
         .scale-cell:last-child {
             border-right: none;
         }
-        .scale-1 { background: #ffffff; }
-        .scale-2 { background: #c9f2df; }
-        .scale-3 { background: #9fe2c8; }
-        .scale-4 { background: #70cda9; }
-        .scale-5 { background: #53b58f; }
-        .result-positive {
-            border: 1px solid #bd6b28;
-            background: #fff6ed;
-            padding: 1rem;
-            color: #5e310e;
+        .scale-1 { background: #fffdf9; }
+        .scale-2 { background: #fff1df; }
+        .scale-3 { background: #f6cfb1; }
+        .scale-4 { background: #e9aa86; }
+        .scale-5 { background: #cf7b59; color: #fffaf5; }
+        .result-hero {
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fffaf4 0%, #ffe9d8 100%);
+            box-shadow: 0 20px 60px rgba(137, 85, 49, 0.14);
+            padding: 1.7rem;
+            margin: 0.3rem 0 1.1rem;
         }
-        .result-negative {
-            border: 1px solid #68a98f;
-            background: #f0faf6;
-            padding: 1rem;
-            color: #174536;
+        .result-kicker {
+            color: var(--warm-accent-dark);
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+        .result-title {
+            color: var(--warm-text);
+            font-size: clamp(2rem, 5vw, 3.7rem);
+            line-height: 1.06;
+            font-weight: 850;
+            margin: 0;
+        }
+        .result-message {
+            color: #5f4435;
+            font-size: 1.08rem;
+            line-height: 1.85;
+            margin: 1rem 0 0;
+        }
+        .score-band {
+            display: grid;
+            grid-template-columns: minmax(140px, 0.55fr) minmax(220px, 1.45fr);
+            gap: 1rem;
+            align-items: stretch;
+            margin: 1rem 0;
+        }
+        .score-box, .guidance-box {
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            background: rgba(255, 253, 249, 0.94);
+            padding: 1.1rem;
+        }
+        .score-number {
+            font-size: clamp(3.1rem, 8vw, 5rem);
+            line-height: 1;
+            font-weight: 900;
+            color: var(--warm-accent-dark);
+        }
+        .score-label {
+            color: var(--warm-muted);
+            font-weight: 700;
+            margin-top: 0.3rem;
+        }
+        .guidance-box strong {
+            color: var(--warm-accent-dark);
+        }
+        .gentle-list {
+            color: #684b3b;
+            line-height: 1.85;
+            margin-top: 0.85rem;
+        }
+        .stButton > button, .stDownloadButton > button, [data-testid="stFormSubmitButton"] button {
+            background: linear-gradient(135deg, var(--warm-accent), var(--warm-accent-dark));
+            color: #fffaf5;
+            border: 0;
+            border-radius: 8px;
+            font-weight: 800;
+            box-shadow: 0 10px 22px rgba(159, 79, 43, 0.18);
+        }
+        .stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stFormSubmitButton"] button:hover {
+            border: 0;
+            color: #ffffff;
+            filter: brightness(0.98);
+        }
+        [data-testid="stMetric"] {
+            background: #fffdf9;
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
         }
         @media (max-width: 760px) {
-            .scale-grid {
+            .block-container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            .scale-grid, .score-band {
                 grid-template-columns: 1fr;
             }
             .scale-cell {
                 min-height: 42px;
                 border-right: none;
-                border-bottom: 1px solid #9db8ad;
+                border-bottom: 1px solid #dfc2ac;
             }
             .scale-cell:last-child {
                 border-bottom: none;
@@ -156,13 +267,20 @@ def utc_timestamp() -> str:
     return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
 
 
+def rerun_app() -> None:
+    if hasattr(st, "rerun"):
+        st.rerun()
+    else:
+        st.experimental_rerun()
+
+
 def evaluate_result(q1: str, months: int, q13: str, ratings: dict[str, int]) -> dict[str, object]:
     total_score = sum(ratings.values())
     criteria = {
-        "Q1 重要他人丧失": q1 == "是",
+        "Q1 重要他人丧失": q1 == YES,
         "Q2 离世时间至少 6 个月": months >= 6,
         "Q3-Q12 总分不少于 30 分": total_score >= 30,
-        "Q13 功能明显下降": q13 == "是",
+        "Q13 功能明显下降": q13 == YES,
     }
     positive = all(criteria.values())
     return {
@@ -219,13 +337,25 @@ def load_submissions() -> pd.DataFrame:
 
 
 def render_header() -> None:
-    st.title(APP_TITLE)
-    st.caption(TRANSLATOR)
+    st.markdown(
+        f"""
+        <section class="hero-panel">
+            <div class="eyebrow">PG-13-R 在线自评</div>
+            <h1 class="hero-title">{APP_TITLE}</h1>
+            <p class="hero-copy">
+                {TRANSLATOR}<br>
+                这是一份关于失去重要他人后的哀伤体验自评。请在一个安静的时刻作答，
+                不需要追求“正确答案”，只需选择最贴近您当前感受的一项。
+            </p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown(
         """
-        <div class="intro-note">
-        本问卷适合作为延长哀伤相关症状的自评与筛查参考，不宜用作正式诊断。
-        如果您正在经历强烈痛苦，或出现伤害自己/他人的想法，请立即联系当地急救服务、
+        <div class="soft-note">
+        本问卷仅用于延长哀伤相关症状的自评与筛查参考，不作为正式诊断。
+        如果您正在经历强烈痛苦，或出现伤害自己或他人的想法，请立即联系当地急救服务、
         危机干预热线或可信赖的人。
         </div>
         """,
@@ -235,7 +365,7 @@ def render_header() -> None:
 
 def render_scale_legend() -> None:
     st.markdown("#### Q3-Q12 作答说明")
-    st.markdown("自从 ta 离世后，或者由于 ta 的离世……请选择最符合您近况的一项。")
+    st.markdown("自从 ta 离世后，或者由于 ta 的离世，请选择最符合您近况的一项。")
     st.markdown(
         """
         <div class="scale-grid">
@@ -272,39 +402,91 @@ def validate_submission(
     return missing
 
 
-def render_result(result: dict[str, object]) -> None:
-    criteria = result["criteria"]
-    total_score = result["total_score"]
-    positive = result["positive"]
-
-    st.subheader("提交结果")
-    st.metric("Q3-Q12 总分", f"{total_score} / 50")
+def result_title_and_message(result: dict[str, object]) -> tuple[str, str, str]:
+    total_score = int(result["total_score"])
+    positive = bool(result["positive"])
     if positive:
-        st.markdown(
-            """
-            <div class="result-positive">
-            按本问卷图片中的规则，当前结果达到延长哀伤障碍筛查阳性提示：
-            总分 ≥ 30，Q1 和 Q13 均选择“是”，且 Q2 至少为 6 个月。
-            该结果不能替代专业诊断，建议在需要时联系专业心理健康服务。
-            </div>
-            """,
-            unsafe_allow_html=True,
+        return (
+            "哀伤指数较高",
+            "当前您的哀伤指数较高。请先慢慢呼吸一下，您愿意完成这份问卷，本身就是在认真照顾自己。",
+            "建议您在方便的时候前往专业医院或心理健康机构，进行更准确、更完整的评估。让专业人员陪您一起梳理这些感受，会比一个人承受轻一些。",
         )
-    else:
-        st.markdown(
-            """
-            <div class="result-negative">
-            按本问卷图片中的规则，当前结果未同时满足延长哀伤障碍筛查阳性条件。
-            如果痛苦持续影响生活，仍建议寻求专业支持。
-            </div>
-            """,
-            unsafe_allow_html=True,
+    if total_score >= 30:
+        return (
+            "需要多给自己一些照顾",
+            "您的哀伤指数有些偏高，说明这段经历可能仍在占据您很多心力。",
+            "如果这些感受已经影响到睡眠、工作、学习、人际关系或日常生活，建议您寻求专业医院或心理健康机构的进一步支持。",
         )
-
-    criteria_frame = pd.DataFrame(
-        [{"规则": key, "是否满足": "是" if value else "否"} for key, value in criteria.items()]
+    return (
+        "请继续温柔地照顾自己",
+        "从本次作答来看，您的哀伤指数暂时没有处在较高范围。",
+        "这并不代表您的难过不重要。请允许自己有起伏，也可以在需要时和可信赖的人聊一聊。",
     )
-    st.dataframe(criteria_frame, hide_index=True, use_container_width=True)
+
+
+def render_result_page() -> None:
+    result = st.session_state.get("latest_result")
+
+    if not result:
+        st.markdown(
+            """
+            <section class="result-hero">
+                <div class="result-kicker">尚无结果</div>
+                <h1 class="result-title">请先完成问卷</h1>
+                <p class="result-message">完成提交后，系统会自动跳转到这里显示您的测试结果。</p>
+            </section>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("去填写问卷", use_container_width=True):
+            st.session_state.current_page = "填写问卷"
+            rerun_app()
+        return
+
+    title, main_message, supporting_message = result_title_and_message(result)
+    total_score = int(result["total_score"])
+
+    st.markdown(
+        f"""
+        <section class="result-hero">
+            <div class="result-kicker">您的测试结果</div>
+            <h1 class="result-title">{title}</h1>
+            <p class="result-message">{main_message}</p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+        <div class="score-band">
+            <div class="score-box">
+                <div class="score-number">{total_score}</div>
+                <div class="score-label">您的哀伤指数 / 50</div>
+            </div>
+            <div class="guidance-box">
+                <strong>给您的建议</strong>
+                <p>{supporting_message}</p>
+                <div class="gentle-list">
+                如果您近期感到难以承受，或出现伤害自己/他人的想法，请立即联系当地急救服务、
+                危机干预热线，或身边可信赖的人。
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.progress(min(total_score / 50, 1.0), text=f"哀伤指数：{total_score}/50")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("重新填写", use_container_width=True):
+            st.session_state.current_page = "填写问卷"
+            rerun_app()
+    with col2:
+        if st.button("返回问卷首页", use_container_width=True):
+            st.session_state.current_page = "填写问卷"
+            rerun_app()
 
 
 def render_questionnaire() -> None:
@@ -351,7 +533,7 @@ def render_questionnaire() -> None:
             horizontal=True,
         )
         consent = st.checkbox("我理解本问卷仅用于筛查参考，不作为正式诊断，并同意提交本次作答。")
-        submitted = st.form_submit_button("提交问卷", use_container_width=True)
+        submitted = st.form_submit_button("提交并查看结果", use_container_width=True)
 
     if not submitted:
         return
@@ -375,8 +557,17 @@ def render_questionnaire() -> None:
         result=result,
     )
     save_submission(row)
-    st.success("问卷已提交。")
-    render_result(result)
+    st.session_state.latest_result = result
+    st.session_state.latest_answers = {
+        "respondent_code": respondent_code.strip(),
+        "q1": str(q1),
+        "months": int(months),
+        "q13": str(q13),
+        "ratings": completed_ratings,
+        "submitted_at": row["submitted_at"],
+    }
+    st.session_state.current_page = "测试结果"
+    rerun_app()
 
 
 def render_admin() -> None:
@@ -427,15 +618,35 @@ def render_reference_note() -> None:
         )
 
 
+def get_sidebar_page() -> str:
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = "填写问卷"
+
+    pages = ["填写问卷"]
+    if st.session_state.get("latest_result") is not None:
+        pages.append("测试结果")
+    pages.append("结果管理")
+
+    current_page = st.session_state.current_page
+    if current_page not in pages:
+        current_page = "填写问卷"
+
+    selected_page = st.sidebar.radio("页面", pages, index=pages.index(current_page))
+    st.session_state.current_page = selected_page
+    st.sidebar.markdown("---")
+    st.sidebar.caption("PG-13-R 在线问卷")
+    return selected_page
+
+
 def main() -> None:
     setup_page()
-    page = st.sidebar.radio("页面", ["填写问卷", "结果管理"])
-    st.sidebar.markdown("---")
-    st.sidebar.caption("PG-13-R 在线问卷原型")
+    page = get_sidebar_page()
 
     if page == "填写问卷":
         render_questionnaire()
         render_reference_note()
+    elif page == "测试结果":
+        render_result_page()
     else:
         render_admin()
 

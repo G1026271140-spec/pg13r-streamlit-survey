@@ -1,5 +1,6 @@
 data/*.csv
 .streamlit/secrets.toml
 .venv/
+streamlit_*.log
 __pycache__/
 .pytest_cache/
