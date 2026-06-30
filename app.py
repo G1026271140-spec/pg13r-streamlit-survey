@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 
 
-APP_TITLE = "延长哀伤-13-修改版（PG-13-R）在线问卷"
+APP_TITLE = "延长哀伤障碍自测问卷"
 TRANSLATOR = "译：刘新宪，周宁宁"
 DATA_DIR = Path(os.environ.get("PG13R_DATA_DIR", "data"))
 RESPONSES_FILE = DATA_DIR / "pg13r_responses.csv"
@@ -124,6 +124,33 @@ def setup_page() -> None:
             padding: 0.9rem 1rem;
             color: #5e4234;
             margin: 1rem 0 1.2rem;
+        }
+        .consent-panel {
+            border: 1px solid var(--warm-line);
+            border-radius: 8px;
+            background: rgba(255, 253, 249, 0.96);
+            box-shadow: 0 18px 48px rgba(137, 85, 49, 0.11);
+            padding: 1.25rem 1.35rem;
+            margin: 1rem 0 1.25rem;
+        }
+        .consent-panel h3 {
+            margin-top: 0;
+        }
+        .consent-list {
+            display: grid;
+            gap: 0.85rem;
+            margin-top: 0.9rem;
+        }
+        .consent-item {
+            border: 1px solid #f0d4bf;
+            border-radius: 8px;
+            background: #fff8ef;
+            padding: 0.9rem 1rem;
+            color: #5e4234;
+            line-height: 1.75;
+        }
+        .consent-item strong {
+            color: var(--warm-accent-dark);
         }
         .scale-grid {
             display: grid;
@@ -336,11 +363,64 @@ def load_submissions() -> pd.DataFrame:
     return pd.read_csv(RESPONSES_FILE)
 
 
+def render_consent_page() -> None:
+    st.markdown(
+        f"""
+        <section class="hero-panel">
+            <div class="eyebrow">开始前请阅读</div>
+            <h1 class="hero-title">知情同意书</h1>
+            <p class="hero-copy">
+                欢迎使用“{APP_TITLE}”。在进入题目之前，请先了解本工具的用途、边界和退出方式。
+            </p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        """
+        <div class="consent-panel">
+            <h3>请确认以下事项</h3>
+            <div class="consent-list">
+                <div class="consent-item">
+                    <strong>本工具仅供自我觉察，非医学诊断。</strong><br>
+                    问卷结果只用于帮助您初步了解自身哀伤相关体验，不能替代精神科、心理科或其他专业医疗评估。
+                </div>
+                <div class="consent-item">
+                    <strong>您可以随时退出。</strong><br>
+                    作答完全自愿。如果您不想继续，可以直接关闭页面或停止填写，不会产生任何不良后果。
+                </div>
+                <div class="consent-item">
+                    <strong>感到不适请停止。</strong><br>
+                    如果阅读或作答过程中感到明显痛苦、焦虑或难以承受，请立即停止，并联系可信赖的人、当地急救服务或专业心理/医疗支持。
+                </div>
+                <div class="consent-item">
+                    <strong>请避免填写敏感身份信息。</strong><br>
+                    如需填写受访者编号，请勿填写身份证号、手机号、详细住址等可直接识别个人身份的信息。
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    accepted = st.checkbox("我已阅读并理解以上说明，自愿继续进行自测。")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("同意并开始填写", disabled=not accepted, use_container_width=True):
+            st.session_state.informed_consent = True
+            st.session_state.current_page = "填写问卷"
+            rerun_app()
+    with col2:
+        if st.button("暂不填写", use_container_width=True):
+            st.session_state.informed_consent = False
+            st.info("您可以直接关闭页面，也可以稍后再回来。")
+
+
 def render_header() -> None:
     st.markdown(
         f"""
         <section class="hero-panel">
-            <div class="eyebrow">PG-13-R 在线自评</div>
+            <div class="eyebrow">延长哀伤障碍自测</div>
             <h1 class="hero-title">{APP_TITLE}</h1>
             <p class="hero-copy">
                 {TRANSLATOR}<br>
@@ -490,6 +570,13 @@ def render_result_page() -> None:
 
 
 def render_questionnaire() -> None:
+    if not st.session_state.get("informed_consent", False):
+        st.warning("请先阅读并确认知情同意书，再开始填写问卷。")
+        if st.button("前往知情同意书", use_container_width=True):
+            st.session_state.current_page = "知情同意"
+            rerun_app()
+        return
+
     render_header()
 
     with st.form("pg13r_form", clear_on_submit=True):
@@ -532,7 +619,7 @@ def render_questionnaire() -> None:
             index=None,
             horizontal=True,
         )
-        consent = st.checkbox("我理解本问卷仅用于筛查参考，不作为正式诊断，并同意提交本次作答。")
+        consent = bool(st.session_state.get("informed_consent", False))
         submitted = st.form_submit_button("提交并查看结果", use_container_width=True)
 
     if not submitted:
@@ -620,21 +707,24 @@ def render_reference_note() -> None:
 
 def get_sidebar_page() -> str:
     if "current_page" not in st.session_state:
-        st.session_state.current_page = "填写问卷"
+        st.session_state.current_page = "知情同意"
 
-    pages = ["填写问卷"]
+    consented = bool(st.session_state.get("informed_consent", False))
+    pages = ["知情同意"]
+    if consented:
+        pages.append("填写问卷")
     if st.session_state.get("latest_result") is not None:
         pages.append("测试结果")
     pages.append("结果管理")
 
     current_page = st.session_state.current_page
     if current_page not in pages:
-        current_page = "填写问卷"
+        current_page = "填写问卷" if consented else "知情同意"
 
     selected_page = st.sidebar.radio("页面", pages, index=pages.index(current_page))
     st.session_state.current_page = selected_page
     st.sidebar.markdown("---")
-    st.sidebar.caption("PG-13-R 在线问卷")
+    st.sidebar.caption(APP_TITLE)
     return selected_page
 
 
@@ -642,7 +732,9 @@ def main() -> None:
     setup_page()
     page = get_sidebar_page()
 
-    if page == "填写问卷":
+    if page == "知情同意":
+        render_consent_page()
+    elif page == "填写问卷":
         render_questionnaire()
         render_reference_note()
     elif page == "测试结果":
